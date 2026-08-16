@@ -1,6 +1,6 @@
 from datetime import datetime
 from io import BytesIO
-import json
+import random
 
 import streamlit as st
 from reportlab.lib.pagesizes import letter
@@ -23,75 +23,70 @@ st.markdown(
     """
 <style>
 :root {
-    --bg0: #fdfbff;
-    --bg1: #f5efff;
+    --bg: #1b1036;
+    --bg-soft: #27144d;
     --panel: #ffffff;
-    --primary: #6f2cff;
-    --primary-2: #8d5bff;
-    --text: #2a1959;
-    --muted: #6f63a6;
-    --edge: #e2d4ff;
+    --edge: #3f2383;
+    --primary: #6c35ff;
+    --accent: #8d66ff;
+    --text-dark: #1b1036;
+    --text-light: #f8f6ff;
 }
 
 [data-testid="stAppViewContainer"] {
     background:
-        radial-gradient(1200px 600px at 15% 0%, #ffffff 0%, transparent 60%),
-        radial-gradient(1000px 500px at 85% 100%, #ece0ff 0%, transparent 60%),
-        linear-gradient(140deg, var(--bg0) 0%, var(--bg1) 100%);
+        radial-gradient(900px 450px at 15% 0%, #3a1f7a 0%, transparent 60%),
+        radial-gradient(800px 420px at 90% 100%, #2a1658 0%, transparent 60%),
+        linear-gradient(135deg, var(--bg) 0%, #130a29 100%);
 }
 
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #ffffff 0%, #f8f2ff 100%);
-    border-right: 1px solid var(--edge);
+    background: linear-gradient(180deg, #221245 0%, #1a0f36 100%);
+    border-right: 1px solid #4b2b9c;
 }
 
-.brand-card {
-    border: 1px solid var(--edge);
-    background: linear-gradient(130deg, #ffffff 0%, #f2e7ff 100%);
-    border-radius: 18px;
-    padding: 24px;
-    animation: fadeIn 0.6s ease-out;
+h1, h2, h3, label, span, p {
+    color: var(--text-light) !important;
 }
 
-.pulse-chip {
-    display: inline-block;
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: #f2e7ff;
-    color: #5f34d6;
-    font-size: 0.84rem;
-    border: 1px solid #dbc6ff;
-    animation: pulse 2.4s ease-in-out infinite;
+.panel {
+    background: var(--panel);
+    border: 1px solid #d9d2ef;
+    border-radius: 16px;
+    padding: 18px;
+    color: var(--text-dark);
+    box-shadow: 0 10px 30px rgba(19, 10, 41, 0.32);
 }
 
 .story-box {
-    border: 1px solid var(--edge);
-    background: var(--panel);
-    border-radius: 16px;
+    background: #ffffff;
+    color: var(--text-dark);
+    border: 1px solid #ddd6f3;
+    border-radius: 14px;
     padding: 18px;
     line-height: 1.75;
-    color: var(--text);
-    animation: riseIn 0.5s ease-out;
+    animation: reveal 0.45s ease-out;
 }
 
-.feedback-box {
-    border: 1px dashed #cdb4ff;
-    border-radius: 14px;
-    padding: 12px;
-    background: #fffafd;
-}
-
-h1, h2, h3, p, label, span, div {
-    color: var(--text);
+.tag-chip {
+    display: inline-block;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid #5f3eb6;
+    color: #f8f6ff;
+    background: rgba(141, 102, 255, 0.14);
+    font-size: 0.85rem;
 }
 
 .stButton > button {
     border: 0;
     border-radius: 12px;
-    color: #fff;
+    color: #ffffff;
     font-weight: 700;
-    background: linear-gradient(120deg, var(--primary), var(--primary-2));
-    box-shadow: 0 8px 20px rgba(111, 44, 255, 0.24);
+    background: linear-gradient(120deg, var(--primary), var(--accent));
+    box-shadow: 0 8px 24px rgba(108, 53, 255, 0.38);
     transition: transform 0.2s ease, filter 0.2s ease;
 }
 
@@ -100,19 +95,16 @@ h1, h2, h3, p, label, span, div {
     filter: brightness(1.06);
 }
 
-@keyframes riseIn {
-    from { opacity: 0; transform: translateY(12px); }
+div[data-baseweb="select"] > div,
+textarea,
+input {
+    background: #ffffff !important;
+    color: #140b29 !important;
+}
+
+@keyframes reveal {
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.03); opacity: 0.85; }
 }
 </style>
 """,
@@ -122,26 +114,26 @@ h1, h2, h3, p, label, span, div {
 
 def get_mode_instructions() -> dict:
     return {
-        "Character Tale": "Write a character-driven short story with emotional progression and a hopeful ending.",
-        "Mythology Remix": "Blend mythology motifs with modern life and keep the tone imaginative and respectful.",
-        "Personal Memoir": "Write with reflective tone focused on personal growth, values, and empathy.",
-        "Flash Fiction": "Write short, crisp flash fiction with a clean twist ending and safe language.",
-        "Sci-Fi Masque": "Write a theatrical sci-fi narrative with masked identities, future cities, wonder, and mystery.",
-        "Custom": "Write a rich, engaging, family-safe story from the user prompt.",
+        "Character Tale": "Write a character-driven short story with emotional progression and meaningful closure.",
+        "Mythology Remix": "Blend mythology motifs with modern situations in a respectful and imaginative way.",
+        "Personal Memoir": "Write with reflective tone focused on growth, memory, and inner voice.",
+        "Flash Fiction": "Write compact flash fiction with clarity and a satisfying twist ending.",
+        "Sci-Fi Masque": "Write a theatrical sci-fi story with masked identities, atmosphere, and futuristic wonder.",
+        "Custom": "Write a vivid, engaging story based on the topic and creative cues.",
     }
 
 
 def get_audience_instruction(audience: str) -> str:
     if audience == "Kids (8+)":
-        return "Use simple words, gentle themes, and absolutely no graphic, explicit, or frightening content."
+        return "Use simple words, gentle scenes, and fully family-safe storytelling."
     if audience == "Teens":
-        return "Use energetic style with emotional depth. Avoid explicit sexual content and graphic violence."
+        return "Use energetic style, emotional depth, and no explicit content."
     if audience == "Family":
-        return "Keep content universally suitable and positive for mixed-age listeners."
-    return "Keep narrative tasteful and non-explicit. Avoid graphic violence and adult-only sexual content."
+        return "Keep it universally suitable, warm, and clean for all age groups."
+    return "Keep language tasteful and avoid graphic content."
 
 
-def build_pdf_bytes(story: str, mode: str, prompt: str, audience: str) -> bytes:
+def build_pdf_bytes(story: str, mode: str, topic: str, audience: str) -> bytes:
     packet = BytesIO()
     doc = SimpleDocTemplate(packet, pagesize=letter)
     styles = getSampleStyleSheet()
@@ -153,14 +145,35 @@ def build_pdf_bytes(story: str, mode: str, prompt: str, audience: str) -> bytes:
         Spacer(1, 10),
         Paragraph(f"Mode: {mode}", normal),
         Paragraph(f"Audience: {audience}", normal),
+        Paragraph(f"Topic: {topic}", normal),
         Paragraph(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", normal),
-        Paragraph(f"Prompt: {prompt}", normal),
         Spacer(1, 12),
         Paragraph(story.replace("\n", "<br/>"), normal),
     ]
     doc.build(parts)
     packet.seek(0)
     return packet.read()
+
+
+def local_fallback_story(topic: str, mode: str, audience: str) -> str:
+    openings = [
+        f"In a city lit by violet skies, the story of {topic} began quietly.",
+        f"Everyone believed they knew {topic}, until one impossible night changed everything.",
+        f"At the edge of tomorrow, {topic} became the key to a hidden truth.",
+    ]
+    mids = [
+        "A brave decision forced the hero to choose between fear and purpose.",
+        "Clues appeared in unexpected places, and each clue deepened the mystery.",
+        "When hope seemed lost, a small act of kindness changed the direction of events.",
+    ]
+    endings = [
+        "By dawn, the world had not become perfect, but it had become better, and that was enough.",
+        "The final revelation did not end the journey; it gave everyone a reason to begin again.",
+        "What started as a question became a promise: this story would inspire many more to come.",
+    ]
+
+    tone_line = f"Mode: {mode}. Audience profile: {audience}."
+    return "\n\n".join([random.choice(openings), tone_line, random.choice(mids), random.choice(endings)])
 
 
 @st.cache_resource
@@ -176,94 +189,35 @@ def load_tts_engine():
     return TTSEngine(Config())
 
 
-def save_feedback(name: str, rating: int, comment: str, mode: str):
-    cfg = Config()
-    feedback_file = cfg.output_dir / "feedback.jsonl"
-    payload = {
-        "time": datetime.now().isoformat(),
-        "name": name.strip() or "anonymous",
-        "rating": rating,
-        "comment": comment.strip(),
-        "mode": mode,
-    }
-    with open(feedback_file, "a", encoding="utf-8") as fh:
-        fh.write(json.dumps(payload, ensure_ascii=False) + "\n")
+if "story" not in st.session_state:
+    st.session_state.story = ""
+if "topic" not in st.session_state:
+    st.session_state.topic = ""
+if "mode" not in st.session_state:
+    st.session_state.mode = "Character Tale"
+if "audience" not in st.session_state:
+    st.session_state.audience = "Family"
+if "audio_bytes" not in st.session_state:
+    st.session_state.audio_bytes = b""
+if "count" not in st.session_state:
+    st.session_state.count = 0
 
-
-def init_state():
-    defaults = {
-        "story": "",
-        "prompt": "",
-        "mode": "Character Tale",
-        "audience": "Family",
-        "audio_bytes": b"",
-        "count": 0,
-        "auth_ok": False,
-        "login_user": "",
-    }
-    for key, value in defaults.items():
-        if key not in st.session_state:
-            st.session_state[key] = value
-
-
-init_state()
-cfg = Config()
 mode_map = get_mode_instructions()
+cfg = Config()
+
+title_col, stats_col = st.columns([3, 1])
+with title_col:
+    st.markdown("# Arcanova AI Story Narration Studio")
+    st.markdown("<span class='tag-chip'>Dark Purple + Pure White</span><span class='tag-chip'>No API Key</span><span class='tag-chip'>Interactive Generation</span>", unsafe_allow_html=True)
+with stats_col:
+    st.markdown("<div class='panel'><h3 style='color:#1b1036 !important'>Session</h3><p style='color:#1b1036 !important'>Stories: {}</p></div>".format(st.session_state.count), unsafe_allow_html=True)
 
 with st.sidebar:
-    st.header("Access")
-    if not st.session_state.auth_ok:
-        user_in = st.text_input("Username", value="")
-        pass_in = st.text_input("Password", value="", type="password")
-        guest = st.checkbox("Login as guest (read/write features enabled)", value=True)
-        if st.button("Login", use_container_width=True):
-            if guest or (user_in == cfg.auth_username and pass_in == cfg.auth_password):
-                st.session_state.auth_ok = True
-                st.session_state.login_user = user_in or "guest"
-                st.success("Login successful")
-                st.rerun()
-            else:
-                st.error("Invalid credentials")
-    else:
-        st.success(f"Logged in as {st.session_state.login_user}")
-        if st.button("Logout", use_container_width=True):
-            st.session_state.auth_ok = False
-            st.rerun()
-
-if not st.session_state.auth_ok:
-    st.markdown(
-        """
-<div class="brand-card">
-    <h1>Arcanova AI</h1>
-    <p>Login to continue into your storytelling studio.</p>
-    <p class="pulse-chip">No API keys required</p>
-</div>
-""",
-        unsafe_allow_html=True,
-    )
-    st.stop()
-
-st.markdown(
-    """
-<div class="brand-card">
-    <h1>Arcanova AI Story Narration Studio</h1>
-    <p>Qwen 3B generation + Kokoro narration. Purple-white premium interface built for all age groups.</p>
-    <p class="pulse-chip">Smooth mode active</p>
-</div>
-""",
-    unsafe_allow_html=True,
-)
-
-with st.sidebar:
-    st.header("Generation Settings")
-    model_name = st.selectbox(
-        "Qwen model",
-        ["Qwen/Qwen2.5-3B-Instruct", "Qwen/Qwen2.5-3B"],
-        index=0,
-    )
-    use_4bit = st.checkbox("Use 4-bit loading (recommended for Tesla T4)", value=True)
+    st.header("Creative Controls")
+    model_name = st.selectbox("Qwen model", ["Qwen/Qwen2.5-3B-Instruct", "Qwen/Qwen2.5-3B"], index=0)
+    use_4bit = st.checkbox("Use 4-bit loading (best for T4)", value=True)
     mode = st.selectbox("Story mode", list(mode_map.keys()), index=0)
-    audience = st.selectbox("Audience safety", ["Kids (8+)", "Teens", "Family", "Adults"], index=2)
+    audience = st.selectbox("Audience", ["Kids (8+)", "Teens", "Family", "Adults"], index=2)
     max_tokens = st.slider("Story length", 120, 900, cfg.default_max_tokens, 20)
     temperature = st.slider("Creativity", 0.2, 1.3, cfg.default_temperature, 0.1)
     top_p = st.slider("Top-p", 0.5, 1.0, cfg.default_top_p, 0.05)
@@ -274,85 +228,76 @@ with st.sidebar:
     speed = st.slider("Voice speed", 0.7, 1.4, 1.0, 0.1)
     booming = st.checkbox("Booming effect", value=False)
 
-    st.caption(f"Stories generated in this session: {st.session_state.count}")
-
 left, right = st.columns([2, 1])
-
 with left:
-    prompt = st.text_area(
-        "Story prompt",
-        value=st.session_state.prompt,
-        placeholder="Example: In Neo-Lucknow, a masked astronaut opens a memory vault under the moon.",
+    topic = st.text_area(
+        "Enter your topic or prompt",
+        value=st.session_state.topic,
+        placeholder="Example: A masked astronaut uncovers a memory vault on Mars and changes Earth forever.",
         height=170,
     )
-
 with right:
-    st.markdown("### Guidance")
-    st.write("1. Choose mode and audience.")
-    st.write("2. Generate the story.")
-    st.write("3. Narrate with full-story voice rendering.")
-    st.write("4. Download and sell-ready export.")
+    st.markdown("<div class='panel'><h3 style='color:#1b1036 !important'>How to use</h3><p style='color:#1b1036 !important'>1. Enter topic\n2. Click Generate\n3. Click Narrate\n4. Download</p></div>", unsafe_allow_html=True)
 
-row1, row2, row3 = st.columns(3)
-with row1:
+btn1, btn2, btn3 = st.columns(3)
+with btn1:
     generate_now = st.button("Generate Story", use_container_width=True)
-with row2:
+with btn2:
     narrate_now = st.button("Narrate Full Story", use_container_width=True)
-with row3:
+with btn3:
     if st.button("Clear", use_container_width=True):
         st.session_state.story = ""
         st.session_state.audio_bytes = b""
         st.rerun()
 
 if generate_now:
-    if not prompt.strip():
-        st.warning("Please enter a story prompt.")
+    if not topic.strip():
+        st.warning("Please enter a topic first.")
     else:
-        st.session_state.prompt = prompt.strip()
+        st.session_state.topic = topic.strip()
         st.session_state.mode = mode
         st.session_state.audience = audience
+        prompt = f"Topic: {topic.strip()}"
+        system_text = mode_map[mode] + " " + get_audience_instruction(audience) + " Ensure a clear beginning, middle, and ending."
 
-        full_system = (
-            mode_map[mode]
-            + " "
-            + get_audience_instruction(audience)
-            + " Ensure coherent beginning, middle, and ending."
-        )
-
+        generated_story = ""
+        model_error = None
         try:
             with st.spinner("Generating story with Qwen..."):
                 engine = load_qwen_engine(model_name, use_4bit)
-                messages = engine.build_prompt(
-                    user_prompt=prompt.strip(),
-                    mode_prompt=full_system,
-                )
+                messages = engine.build_prompt(prompt, system_text)
                 generated_story = engine.generate_story(
                     messages=messages,
                     temperature=temperature,
                     max_tokens=max_tokens,
                     top_p=top_p,
-                )
-            st.session_state.story = generated_story.strip()
-            st.session_state.audio_bytes = b""
-            st.session_state.count += 1
-            st.success("Story generated successfully.")
+                ).strip()
         except Exception as err:
-            st.error(f"Generation failed: {err}")
+            model_error = str(err)
+
+        if not generated_story:
+            generated_story = local_fallback_story(topic.strip(), mode, audience)
+            if model_error:
+                st.info("Model was unavailable, so local fallback generation was used for now.")
+
+        st.session_state.story = generated_story
+        st.session_state.audio_bytes = b""
+        st.session_state.count += 1
+        st.success("Story generated.")
 
 if narrate_now:
     if not st.session_state.story.strip():
         st.warning("Generate a story first.")
     else:
         try:
-            with st.spinner("Narrating full story. This may take a minute for long stories..."):
-                audio = tts_engine.generate_audio(
+            with st.spinner("Narrating full story..."):
+                st.session_state.audio_bytes = tts_engine.generate_audio(
                     st.session_state.story,
                     voice=voice,
                     speed=speed,
                     booming=booming,
                 )
-            st.session_state.audio_bytes = audio
-            st.success("Narration completed for full story.")
+            st.success("Narration completed.")
         except Exception as err:
             st.error(f"Narration failed: {err}")
 
@@ -364,63 +309,30 @@ if st.session_state.story:
     )
 
     if st.session_state.audio_bytes:
-        st.subheader("Narration Output")
+        st.subheader("Narration")
         st.audio(st.session_state.audio_bytes, format="audio/wav")
 
     pdf_bytes = build_pdf_bytes(
         st.session_state.story,
         st.session_state.mode,
-        st.session_state.prompt,
+        st.session_state.topic,
         st.session_state.audience,
     )
-
     txt_bytes = (
         f"Mode: {st.session_state.mode}\n"
         f"Audience: {st.session_state.audience}\n"
-        f"Prompt: {st.session_state.prompt}\n"
+        f"Topic: {st.session_state.topic}\n"
         f"Generated: {datetime.now().isoformat()}\n\n"
         f"{st.session_state.story}\n"
     ).encode("utf-8")
 
-    dl1, dl2, dl3 = st.columns(3)
-    with dl1:
-        st.download_button(
-            "Download TXT",
-            data=txt_bytes,
-            file_name="arcanova_story.txt",
-            mime="text/plain",
-            use_container_width=True,
-        )
-    with dl2:
-        st.download_button(
-            "Download PDF",
-            data=pdf_bytes,
-            file_name="arcanova_story.pdf",
-            mime="application/pdf",
-            use_container_width=True,
-        )
-    with dl3:
+    d1, d2, d3 = st.columns(3)
+    with d1:
+        st.download_button("Download TXT", data=txt_bytes, file_name="arcanova_story.txt", mime="text/plain", use_container_width=True)
+    with d2:
+        st.download_button("Download PDF", data=pdf_bytes, file_name="arcanova_story.pdf", mime="application/pdf", use_container_width=True)
+    with d3:
         if st.session_state.audio_bytes:
-            st.download_button(
-                "Download WAV",
-                data=st.session_state.audio_bytes,
-                file_name="arcanova_narration.wav",
-                mime="audio/wav",
-                use_container_width=True,
-            )
+            st.download_button("Download WAV", data=st.session_state.audio_bytes, file_name="arcanova_narration.wav", mime="audio/wav", use_container_width=True)
 
-st.markdown("---")
-st.subheader("Feedback")
-with st.container(border=False):
-    st.markdown("<div class='feedback-box'>Tell us what to improve before launch.</div>", unsafe_allow_html=True)
-    fb_name = st.text_input("Name (optional)", value="")
-    fb_rating = st.slider("Rating", 1, 5, 5)
-    fb_comment = st.text_area("Feedback", value="", placeholder="What should be improved for launch?")
-    if st.button("Submit Feedback", use_container_width=False):
-        if not fb_comment.strip():
-            st.warning("Please enter feedback text.")
-        else:
-            save_feedback(fb_name, fb_rating, fb_comment, st.session_state.mode)
-            st.success("Feedback saved. Thank you.")
-
-st.caption("Arcanova AI: purple-white, local, no API keys, GitHub-ready.")
+st.caption("Arcanova AI: dark purple + pure white interactive studio with local generation and narration.")

@@ -1,0 +1,217 @@
+#!/usr/bin/env python3
+"""
+Automated dependency installation for Arcanova AI
+Handles PyTorch installation based on system configuration
+
+Usage:
+    python install_dependencies.py --gpu  # For NVIDIA GPU
+    python install_dependencies.py --cpu  # For CPU only
+"""
+
+import subprocess
+import sys
+import platform
+import argparse
+import os
+from pathlib import Path
+
+class DependencyInstaller:
+    def __init__(self, gpu=False, cpu=False):
+        self.gpu = gpu
+        self.cpu = cpu
+        self.system = platform.system()
+        self.python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+    
+    def print_header(self, text):
+        """Print formatted header"""
+        print("\n" + "="*60)
+        print(f"  {text}")
+        print("="*60 + "\n")
+    
+    def print_info(self, text):
+        """Print info message"""
+        print(f"ℹ️  {text}")
+    
+    def print_success(self, text):
+        """Print success message"""
+        print(f"✅ {text}")
+    
+    def print_error(self, text):
+        """Print error message"""
+        print(f"❌ {text}")
+    
+    def check_python_version(self):
+        """Check if Python version is compatible"""
+        if sys.version_info < (3, 8):
+            self.print_error(f"Python 3.8+ required. You have {self.python_version}")
+            return False
+        self.print_success(f"Python {self.python_version} detected")
+        return True
+    
+    def check_pip_version(self):
+        """Check and upgrade pip"""
+        try:
+            subprocess.run([sys.executable, "-m", "pip", "--version"], 
+                         capture_output=True, check=True)
+            self.print_success("pip found")
+            
+            # Upgrade pip
+            print("Upgrading pip...")
+            subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "pip"],
+                         check=False)
+            return True
+        except:
+            self.print_error("pip not found")
+            return False
+    
+    def detect_gpu(self):
+        """Detect available GPU"""
+        try:
+            import torch
+            if torch.cuda.is_available():
+                device_name = torch.cuda.get_device_name(0)
+                device_memory = torch.cuda.get_device_properties(0).total_memory / 1e9
+                self.print_success(f"GPU detected: {device_name} ({device_memory:.1f}GB)")
+                return True
+            else:
+                self.print_info("No GPU detected, will use CPU")
+                return False
+        except:
+            self.print_info("Could not detect GPU, assuming CPU")
+            return False
+    
+    def install_pytorch(self):
+        """Install PyTorch based on system and GPU availability"""
+        self.print_header("Installing PyTorch")
+        
+        if self.cpu:
+            self.print_info("Installing CPU-only PyTorch...")
+            pytorch_install = [
+                sys.executable, "-m", "pip", "install",
+                "torch", "torchvision", "torchaudio",
+                "--index-url", "https://download.pytorch.org/whl/cpu"
+            ]
+        elif self.gpu or (not self.cpu and self.detect_gpu()):
+            self.print_info("Installing GPU-enabled PyTorch (CUDA 12.1)...")
+            pytorch_install = [
+                sys.executable, "-m", "pip", "install",
+                "torch", "torchvision", "torchaudio",
+                "--index-url", "https://download.pytorch.org/whl/cu121"
+            ]
+        else:
+            self.print_info("Installing CPU PyTorch...")
+            pytorch_install = [
+                sys.executable, "-m", "pip", "install",
+                "torch", "torchvision", "torchaudio",
+                "--index-url", "https://download.pytorch.org/whl/cpu"
+            ]
+        
+        try:
+            subprocess.run(pytorch_install, check=True)
+            self.print_success("PyTorch installed successfully")
+            return True
+        except subprocess.CalledProcessError as e:
+            self.print_error(f"Failed to install PyTorch: {str(e)}")
+            return False
+    
+    def install_requirements(self):
+        """Install other dependencies from requirements.txt"""
+        self.print_header("Installing Dependencies")
+        
+        requirements_file = Path(__file__).parent / "requirements.txt"
+        
+        if not requirements_file.exists():
+            self.print_error(f"requirements.txt not found at {requirements_file}")
+            return False
+        
+        try:
+            # Remove torch/torchvision/torchaudio from requirements (already installed)
+            self.print_info("Reading requirements...")
+            with open(requirements_file, 'r') as f:
+                reqs = [line.strip() for line in f.readlines()
+                       if line.strip() and not line.startswith('#')]
+                reqs = [r for r in reqs if not any(x in r for x in ['torch', 'torchvision', 'torchaudio'])]
+            
+            self.print_info(f"Installing {len(reqs)} packages...")
+            for req in reqs:
+                print(f"  - {req}")
+                subprocess.run([sys.executable, "-m", "pip", "install", req],
+                             capture_output=True)
+            
+            self.print_success("All dependencies installed")
+            return True
+        except Exception as e:
+            self.print_error(f"Failed to install requirements: {str(e)}")
+            return False
+    
+    def verify_installation(self):
+        """Verify that all key packages are installed"""
+        self.print_header("Verifying Installation")
+        
+        packages = [
+            ('torch', 'PyTorch'),
+            ('transformers', 'Transformers'),
+            ('streamlit', 'Streamlit'),
+            ('pyttsx3', 'pyttsx3 TTS'),
+        ]
+        
+        all_good = True
+        for package, name in packages:
+            try:
+                __import__(package)
+                self.print_success(f"{name} installed")
+            except ImportError:
+                self.print_error(f"{name} NOT installed")
+                all_good = False
+        
+        return all_good
+    
+    def install(self):
+        """Main installation routine"""
+        self.print_header("Arcanova AI - Dependency Installer")
+        print(f"System: {self.system}")
+        print(f"Python: {self.python_version}")
+        print()
+        
+        # Step 1: Check Python version
+        if not self.check_python_version():
+            return False
+        
+        # Step 2: Check pip
+        if not self.check_pip_version():
+            return False
+        
+        # Step 3: Install PyTorch
+        if not self.install_pytorch():
+            return False
+        
+        # Step 4: Install requirements
+        if not self.install_requirements():
+            return False
+        
+        # Step 5: Verify
+        if not self.verify_installation():
+            return False
+        
+        self.print_header("Installation Complete!")
+        print("✨ Ready to run Arcanova AI!")
+        print("\nNext steps:")
+        print("  1. Run: streamlit run app.py")
+        print("  2. Models will download on first run (~7GB)")
+        print("  3. Enjoy creating stories!")
+        
+        return True
+
+def main():
+    parser = argparse.ArgumentParser(description="Install dependencies for Arcanova AI")
+    parser.add_argument('--gpu', action='store_true', help='Force GPU PyTorch installation')
+    parser.add_argument('--cpu', action='store_true', help='Force CPU PyTorch installation')
+    args = parser.parse_args()
+    
+    installer = DependencyInstaller(gpu=args.gpu, cpu=args.cpu)
+    success = installer.install()
+    
+    sys.exit(0 if success else 1)
+
+if __name__ == "__main__":
+    main()

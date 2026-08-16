@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arcanova AI | Story Narration Studio</title>
+  <style>
+    :root {
+      --bg: #fcf9ff;
+      --bg-2: #f2e8ff;
+      --primary: #6f2cff;
+      --primary-2: #8b5cff;
+      --ink: #2b1c5e;
+      --muted: #6e63a3;
+      --edge: #dfccff;
+      --card: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 400px at 10% 0%, #fff 0, transparent 60%),
+        radial-gradient(900px 500px at 90% 100%, #eedeff 0, transparent 60%),
+        linear-gradient(150deg, var(--bg), var(--bg-2));
+      overflow-x: hidden;
+    }
+
+    .orb {
+      position: fixed;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(30px);
+      opacity: 0.5;
+      animation: drift 12s ease-in-out infinite;
+    }
+
+    .orb.one { width: 220px; height: 220px; background: #d5bcff; top: 8%; left: -40px; }
+    .orb.two { width: 280px; height: 280px; background: #c6a2ff; bottom: 8%; right: -60px; animation-delay: 1.8s; }
+
+    nav {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+
+    .nav-links { display: flex; gap: 16px; }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .nav-links a:hover { color: var(--primary); }
+
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 10px 20px 70px; }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 24px;
+      align-items: center;
+      margin-top: 24px;
+    }
+
+    .hero-card, .panel {
+      background: var(--card);
+      border: 1px solid var(--edge);
+      border-radius: 20px;
+      padding: 26px;
+      box-shadow: 0 10px 30px rgba(111, 44, 255, 0.08);
+    }
+
+    h1 {
+      font-size: 2.7rem;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    h1 span { color: var(--primary); }
+
+    .subtitle { color: var(--muted); margin-bottom: 18px; line-height: 1.6; }
+
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+
+    .badge {
+      border: 1px solid var(--edge);
+      background: #f6eeff;
+      color: #5f3cc5;
+      font-size: 0.84rem;
+      border-radius: 999px;
+      padding: 7px 10px;
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+
+    .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .btn {
+      display: inline-block;
+      text-decoration: none;
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 12px 16px;
+      transition: transform 0.2s ease;
+    }
+
+    .btn.primary { background: linear-gradient(120deg, var(--primary), var(--primary-2)); color: #fff; }
+    .btn.secondary { border: 1px solid var(--primary); color: var(--primary); background: #fff; }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .grid {
+      margin-top: 26px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .feature {
+      border: 1px solid var(--edge);
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px;
+      animation: up 0.5s ease both;
+    }
+
+    .feature h3 { font-size: 1rem; margin-bottom: 6px; color: #4f2fbe; }
+    .feature p { color: var(--muted); font-size: 0.93rem; line-height: 1.45; }
+
+    .panel h2 { margin-bottom: 10px; color: #4f2fbe; }
+    .panel ul { margin-left: 18px; color: var(--muted); line-height: 1.7; }
+
+    .foot {
+      margin-top: 30px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+
+    @keyframes drift {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(12px, -16px); }
+    }
+
+    @keyframes up {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb one"></div>
+  <div class="orb two"></div>
+
+  <nav>
+    <div class="brand">Arcanova AI</div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#sell">Sell Pack</a>
+      <a href="#download">Download</a>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="hero-card">
+        <h1>Build Magical <span>Story + Voice</span> Experiences</h1>
+        <p class="subtitle">Arcanova AI combines local Qwen generation and Kokoro-style narration into a smooth purple-white studio for creators, teachers, and families.</p>
+        <div class="badges">
+          <span class="badge">No API Keys</span>
+          <span class="badge">All Age Groups</span>
+          <span class="badge">Sci-Fi Masque Mode</span>
+          <span class="badge">Full Story Narration</span>
+        </div>
+        <div class="cta">
+          <a class="btn primary" href="#download">Use on GitHub</a>
+          <a class="btn secondary" href="#sell">Gumroad Ready</a>
+        </div>
+      </div>
+
+      <aside class="panel" id="sell">
+        <h2>Seller Bundle Includes</h2>
+        <ul>
+          <li>Streamlit app with smooth animations</li>
+          <li>Simple login flow + feedback capture</li>
+          <li>Narration chunking for complete long stories</li>
+          <li>WAV/TXT/PDF export ready</li>
+          <li>GitHub-first structure, EXE-convertible</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="grid" id="features">
+      <article class="feature">
+        <h3>Story Modes</h3>
+        <p>Character Tale, Memoir, Flash Fiction, Mythology Remix, and Sci-Fi Masque for dramatic futuristic storytelling.</p>
+      </article>
+      <article class="feature">
+        <h3>Audience Safety</h3>
+        <p>Designed for kids, teens, families, and adults with prompt-level guardrails for clean age-appropriate outputs.</p>
+      </article>
+      <article class="feature">
+        <h3>Booming Voice Effect</h3>
+        <p>Optional booming narration texture for trailer-like delivery, especially good for sci-fi and myth modes.</p>
+      </article>
+    </section>
+
+    <p class="foot" id="download">Arcanova AI • Purple + White signature look • Ready for GitHub and product launch.</p>
+  </main>
+</body>
+</html>

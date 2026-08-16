@@ -1,0 +1,303 @@
+# 🚀 Arcanova AI - Quick Start Guide
+
+## ⚡ 5-Minute Setup
+
+## Google Colab (Tesla T4, No API Keys)
+
+1. In Colab, set Runtime -> Change runtime type -> GPU (Tesla T4).
+2. Clone your repo and install dependencies.
+3. Launch Streamlit from terminal.
+
+```bash
+git clone https://github.com/yourusername/arcanova-ai
+cd arcanova-ai
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+
+# Optional: lower VRAM usage for T4
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+streamlit run app.py --server.port 8501 --server.address 0.0.0.0
+```
+
+No API keys are required. The app loads local Hugging Face model weights directly.
+
+---
+
+### 1️⃣ **Windows Users** (Easiest)
+
+```bash
+# Download and run arcanova.exe
+# That's it! The app handles everything.
+```
+
+### 2️⃣ **Developers** (Git + Python)
+
+```bash
+# Clone repository
+git clone https://github.com/yourusername/arcanova-ai
+cd arcanova-ai
+
+# Create virtual environment
+python -m venv venv
+venv\Scripts\activate  # Windows
+# source venv/bin/activate  # Mac/Linux
+
+# Install dependencies
+python install_dependencies.py --gpu  # For NVIDIA GPU
+# OR
+python install_dependencies.py --cpu  # For CPU only
+
+# Run app
+streamlit run app.py
+```
+
+App opens at: `http://localhost:8501`
+
+---
+
+## 📋 What Happens First Run
+
+1. **Models Download** (~7GB total)
+   - Qwen 2.5 3B LLM (~5.6GB)
+   - Piper TTS voice (~100MB)
+   - Cached in `./models/` folder
+
+2. **Time Required**
+   - 5-10 minutes (depending on internet speed)
+   - Only happens once
+   - Subsequent runs are instant
+
+3. **Storage**
+   - EXE: ~500MB
+   - Models: ~7GB
+   - Total: ~7.5GB
+
+---
+
+## 🎬 First Story Generation
+
+### Step 1: Choose Story Mode
+- 🎭 Character Tale
+- 🏛️ Mythology Remix
+- 📝 Personal Memoir
+- ⚡ Flash Fiction
+- 🌍 Cultural Folklore
+- 🔮 Custom Prompt
+
+### Step 2: Customize (Optional)
+- **Tone**: Dark → Neutral → Humorous
+- **Length**: Short (100) → Medium (300) → Long (500+)
+- **Language**: English (Indian/US) or Hindi
+
+### Step 3: Generate
+Click **✨ Generate Story**
+- Wait: 2-10 seconds (GPU) or 30-60 seconds (CPU)
+
+### Step 4: Narrate
+Click **🎙️ Generate Narration**
+- Wait: 2-3 seconds
+- Listen to your story!
+
+### Step 5: Export
+- **📥 Download MP3** → Audio file
+- **📄 Download PDF** → Formatted document
+- **💾 Save Story** → Local text file
+
+---
+
+## 🛠️ Troubleshooting
+
+### ❌ "Models download fails"
+**Solution:**
+```bash
+# Manually download Qwen model
+python -c "
+from transformers import AutoModelForCausalLM
+model = AutoModelForCausalLM.from_pretrained(
+    'Qwen/Qwen2.5-3B',
+    cache_dir='./models'
+)
+"
+```
+
+### ❌ "CUDA out of memory"
+**Solution:** Force CPU mode
+```bash
+set CUDA_VISIBLE_DEVICES=  # Windows
+# export CUDA_VISIBLE_DEVICES=""  # Mac/Linux
+
+streamlit run app.py
+```
+
+### ❌ "Streamlit port 8501 already in use"
+**Solution:**
+```bash
+streamlit run app.py --server.port 8502
+```
+
+### ❌ "TTS produces no audio"
+**Solution:** Fallback TTS (pyttsx3) is used automatically
+- Works offline
+- Different voice quality
+- Still functional
+
+---
+
+## 💡 Pro Tips
+
+### Faster Generation
+1. **Use GPU** — 3-5x faster than CPU
+2. **Reduce length** — Shorter = Faster
+3. **Lower creativity** — 0.5-0.7 is good
+
+### Better Stories
+1. **Custom prompt** — Be specific!
+2. **Higher creativity** — 0.8-1.0 for variety
+3. **Longer stories** — More detail = Better narrative
+
+### Quality Narration
+1. **Select language** — Matches content tone
+2. **Adjust speed** — 0.8x-1.2x works best
+3. **Preview first** — Listen before download
+
+---
+
+## 📁 File Structure After Setup
+
+```
+arcanova-ai/
+├── app.py                 # Main app
+├── src/
+│   ├── qwen_engine.py    # Story generation
+│   ├── tts_engine.py     # Audio narration
+│   └── config.py         # Settings
+├── models/               # Downloaded models (auto-created)
+│   ├── Qwen2.5-3B/       # LLM model
+│   └── piper_voices/     # TTS voices
+├── outputs/              # Your generated content
+│   ├── saved_stories/    # Text files
+│   └── narrations/       # Audio files
+└── requirements.txt      # Dependencies
+```
+
+---
+
+## 🔗 Useful Commands
+
+```bash
+# Run Streamlit
+streamlit run app.py
+
+# Run with custom config
+streamlit run app.py --logger.level=error
+
+# Build EXE
+python build_exe.py
+
+# Clear cache
+streamlit cache clear
+
+# Check GPU
+python -c "import torch; print(torch.cuda.is_available())"
+
+# Check installed packages
+pip list | grep -E "torch|transformers|streamlit"
+```
+
+---
+
+## 📊 Performance Expectations
+
+| Hardware | Story Gen (300 tokens) | Narration |
+|----------|------------------------|-----------|
+| **RTX 3090** | 3-4 sec | 2-3 sec |
+| **RTX 4060** | 8-10 sec | 2-3 sec |
+| **CPU (i7)** | 45-60 sec | 2-3 sec |
+
+---
+
+## 🎨 Customization
+
+### Custom Config (config.json)
+```json
+{
+  "default_temperature": 0.7,
+  "default_max_tokens": 300,
+  "streamlit_theme": "dark"
+}
+```
+
+### Environment Variables
+```bash
+# Cache models elsewhere
+export HF_HOME=/path/to/models
+
+# Disable GPU
+export CUDA_VISIBLE_DEVICES=""
+
+# Set Streamlit theme
+export STREAMLIT_THEME_PRIMARYCOLOR=#667eea
+```
+
+---
+
+## 🚀 Next Steps
+
+1. ✅ **Install & Run** — Get Arcanova working
+2. 🎬 **Create Stories** — Generate your first narrative
+3. 🎙️ **Export Audio** — Download MP3s
+4. 📱 **Share** — Post on social media
+5. 🔧 **Customize** — Adjust settings to your taste
+
+---
+
+## 📚 Additional Resources
+
+- **GitHub**: https://github.com/yourusername/arcanova-ai
+- **Documentation**: See README.md
+- **Issues**: Report bugs on GitHub
+- **Discussions**: Ask questions & share ideas
+
+---
+
+## ❓ FAQ
+
+**Q: Do I need an API key?**
+No! Everything runs locally.
+
+**Q: Can I use it offline?**
+Yes, after first-run model download.
+
+**Q: What about privacy?**
+100% private. No data leaves your computer.
+
+**Q: Can I export to different formats?**
+Currently: MP3, PDF, TXT. More coming soon!
+
+**Q: How do I get better stories?**
+- Be specific in your prompt
+- Adjust creativity slider
+- Increase story length
+- Try different modes
+
+**Q: Is it free?**
+Yes! MIT License. Use freely & commercially.
+
+---
+
+## 🎉 You're Ready!
+
+Start Arcanova and create your first story:
+
+```bash
+streamlit run app.py
+```
+
+Happy storytelling! 📖✨
+
+---
+
+**Made with ❤️ by Tanya**
+
+*NCC • Kathak • AI Enthusiast*

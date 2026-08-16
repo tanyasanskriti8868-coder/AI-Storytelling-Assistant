@@ -1,0 +1,91 @@
+# Models (large files - download on first run)
+models/
+*.bin
+*.pt
+*.pth
+*.onnx
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build
+PyInstaller/
+*.spec
+dist/
+build/
+.pyinstaller/
+
+# Streamlit
+.streamlit/
+.streamlit/config.toml
+
+# Cache
+.cache/
+__pycache__/
+*.cache
+.pytest_cache/
+
+# Logs
+*.log
+logs/
+
+# Outputs (optional - keep locally)
+outputs/
+saved_stories/
+narrations/
+temp_audio.wav
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Generated files
+config.json.example
+temp/
+*.tmp
+
+# Audio/Video temp files
+*.wav
+*.tmp.mp3
+
+# IDE specific
+.vscode/settings.json
+.idea/

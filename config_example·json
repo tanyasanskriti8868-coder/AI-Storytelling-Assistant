@@ -1,0 +1,36 @@
+{
+  "# LLM Settings": "==================",
+  "qwen_model": "Qwen/Qwen2.5-3B",
+  "qwen_dtype": "float16",
+  "default_max_tokens": 300,
+  "default_temperature": 0.7,
+  "default_top_p": 0.9,
+
+  "# TTS Settings": "==================",
+  "tts_backend": "piper",
+  "tts_fallback": "pyttsx3",
+  "tts_sample_rate": 22050,
+  "tts_channels": 1,
+
+  "# Streamlit Settings": "==================",
+  "streamlit_theme": "dark",
+  "streamlit_wide_layout": true,
+  "streamlit_font": "sans serif",
+
+  "# Performance Settings": "==================",
+  "use_model_cache": true,
+  "cuda_enabled": true,
+  "gpu_memory_fraction": 0.9,
+
+  "# Feature Flags": "==================",
+  "enable_history": true,
+  "enable_pdf_export": true,
+  "enable_mp3_export": true,
+  "enable_batch_generation": false,
+  "enable_advanced_settings": true,
+
+  "# Notes": "==================",
+  "note1": "Copy this file to config.json to customize",
+  "note2": "Uncomment values to override defaults",
+  "note3": "Restart app after changes"
+}
